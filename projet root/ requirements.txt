@@ -1,0 +1,4 @@
+Flask==2.0.1
+Flask-RESTful==0.3.9
+psycopg2==2.9.1  # Pour PostgreSQL, ou un autre driver de base de données si nécessaire
+Flask-Login==0.5.0

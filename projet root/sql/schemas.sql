@@ -15,19 +15,32 @@ CREATE DATABASE "gestion promts"
 
 -- creation des tables de la base de donnees 
 
+-- creation table des utilisateurs
 CREATE TABLE Users (
     idUser SERIAL PRIMARY KEY,
-    username VARCHAR(255) NOT NULL,
-    email VARCHAR(255) UNIQUE NOT NULL,
-    password VARCHAR(255) NOT NULL,
-    role VARCHAR(50) NOT NULL -- Peut être 'admin', 'user', ou 'visitor'
+    username_User VARCHAR(255) NOT NULL,
+    email_User VARCHAR(255) UNIQUE NOT NULL,
+    password_User VARCHAR(255) NOT NULL,
+    role VARCHAR(50) NOT NULL -- Peut être 'user', ou 'visitor'
+    idGroup INTEGER,
+    FOREIGN KEY (idGroup) REFERENCES UserGroups(idGroup) ON DELETE SET NULL
 );
+
+-- creation table des utilisateurs
+CREATE TABLE Admin (
+    idAdmin SERIAL PRIMARY KEY,
+    username_Admin VARCHAR(255) NOT NULL,
+    email_Admin VARCHAR(255) UNIQUE NOT NULL,
+    password_Admin VARCHAR(255) NOT NULL,
+);
+
 
 -- creation table des Prompts
 CREATE TABLE Prompts (
 	idPrompts SERIAL PRIMARY KEY,
 	titre vARCHAR (255) NOT NULL,
 	description TEXT NOT NULL,
+    status VARCHAR(50) DEFAULT 'En attente', -- État initial
 	date_creation TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     idUser INTEGER,
     FOREIGN KEY (idUser) REFERENCES Users(idUser) ON DELETE SET NULL
@@ -40,6 +53,8 @@ CREATE TABLE UserGroups (
     nameGroup VARCHAR(255) NOT NULL,
     descriptionGroup TEXT NOT NULL,
     date_creation_group TIMESTAMP DEFAULT CURRENT_TIMESTAMP 
+    idAdmin INTEGER,
+    FOREIGN KEY (idAdmin) REFERENCES Admin(idAdmin) ON DELETE SET NULL   
 );
 
 -- creation table Vote 

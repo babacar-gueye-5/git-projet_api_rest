@@ -15,7 +15,7 @@ CREATE DATABASE "gestion promts"
 
 -- creation des tables de la base de donnees 
 
--- creation table des utilisateurs
+-- creation table des administrateur
 DROP TABLE IF EXISTS Admins;
 CREATE TABLE Admins (
     idAdmin SERIAL PRIMARY KEY,
@@ -77,7 +77,7 @@ CREATE TABLE Vote (
 -- creation table Note 
 DROP TABLE IF EXISTS Note;
 CREATE TABLE Note (
-	note INTEGER,
+	note INTEGER CHECK (note >= -10 AND note <= 10),
 	idUser INTEGER,
 	idPrompt INTEGER,
 	FOREIGN KEY (idUser) REFERENCES Users(idUser) ON DELETE CASCADE,
@@ -86,7 +86,7 @@ CREATE TABLE Note (
 
 
 -- creation table ArchiverPrompts
-DROP TABLE IF EXISTS Note;
+DROP TABLE IF EXISTS ArchiverPrompts;
 CREATE TABLE ArchiverPrompts (
     idPrompt SERIAL PRIMARY KEY,
     titre VARCHAR(255) NOT NULL,
@@ -95,65 +95,5 @@ CREATE TABLE ArchiverPrompts (
     idUser INTEGER,
     date_archived TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
-
-
-
-
--- Trigger pour archiver les prompts supprimés dans une table ArchiverPrompts
-CREATE OR REPLACE FUNCTION archive_prompt()
-RETURNS TRIGGER AS $$
-BEGIN
-    INSERT INTO ArchivedPrompts (idPrompt, titre, description, date_creation, idUser)
-    VALUES (OLD.idPrompt, OLD.titre, OLD.description, OLD.date_creation, OLD.idUser);
-    RETURN OLD;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER after_prompt_delete
-AFTER DELETE ON Prompts
-FOR EACH ROW
-EXECUTE FUNCTION archive_prompt();
-
-
--- Créez une fonction pour calculer les votes et mettre à jour le statut du prompt
-CREATE OR REPLACE FUNCTION update_prompt_status()
-RETURNS TRIGGER AS $$
-DECLARE
-    total_votes INTEGER;
-    prompt_creator_group INTEGER;
-BEGIN
-    -- Trouver le groupe de l'utilisateur qui a créé le prompt
-    SELECT idGroup INTO prompt_creator_group
-    FROM UserGroups
-    WHERE idUser = (SELECT idUser FROM Prompts WHERE idPrompts = NEW.idPrompts);
-
-    -- Calculer le total des votes pour le prompt concerné
-    SELECT SUM(
-        CASE
-            WHEN (SELECT idGroup FROM UserGroups WHERE idUser = NEW.idUser) = prompt_creator_group THEN 2
-            ELSE 1
-        END
-    ) INTO total_votes
-    FROM Vote
-    WHERE idPrompts = NEW.idPrompts;
-
-    -- Mettre à jour le statut du prompt si le total des votes atteint 6
-    IF total_votes >= 6 THEN
-        UPDATE Prompts
-        SET status = 'Activer'
-        WHERE idPrompts = NEW.idPrompts;
-    END IF;
-
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-
--- Créez le trigger qui appelle cette fonction après l'insertion ou la mise à jour d'un vote
-CREATE TRIGGER check_votes
-AFTER INSERT OR UPDATE ON Vote
-FOR EACH ROW
-EXECUTE FUNCTION update_prompt_status();
-
 
 

@@ -2,14 +2,14 @@
 import bcrypt
 from app import db
 
-class User:
+class Admin:
     @staticmethod
     def find_by_email(email):
         cursor = db.cursor()
-        cursor.execute("SELECT * FROM Users WHERE email_User = %s", (email,))
-        user = cursor.fetchone()
+        cursor.execute("SELECT * FROM Admins WHERE email_Admin = %s", (email,))
+        admin = cursor.fetchone()
         cursor.close()
-        return user
+        return admin
 
     @staticmethod
     def check_password(stored_password, provided_password):
@@ -18,7 +18,7 @@ class User:
 
         Args:
         stored_password (str): Le mot de passe haché stocké dans la base de données.
-        provided_password (str): Le mot de passe fourni par l'utilisateur.
+        provided_password (str): Le mot de passe fourni par l'administrateur.
 
         Returns:
         bool: True si le mot de passe correspond, False sinon.

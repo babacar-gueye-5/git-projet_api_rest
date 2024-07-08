@@ -32,7 +32,6 @@ CREATE TABLE Users (
     username_User VARCHAR(255) NOT NULL,
     email_User VARCHAR(255) UNIQUE NOT NULL,
     password_User VARCHAR(255) NOT NULL,
-    role VARCHAR(50) NOT NULL -- Peut être 'user', ou 'visitor'
     idGroup INTEGER,
     FOREIGN KEY (idGroup) REFERENCES UserGroups(idGroup) ON DELETE SET NULL
 );

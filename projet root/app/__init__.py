@@ -1,16 +1,40 @@
+
 from flask import Flask
-from .db import init_db
+from flask_jwt_extended import JWTManager
+from config import Config
+from app.routes.authentif_route import init_routes
+from app.db import get_db, close_db
 
-def create_app():
-    app = Flask(__name__)
-    app.config.from_pyfile('../config.py')
-    
-    init_db(app)
+app = Flask(__name__)
+app.config.from_object(Config)
 
-    from .routes.auth_routes import auth_bp
-    from .routes.prompt_routes import prompt_bp
+# Configuration de JWT
+jwt = JWTManager(app)
 
-    app.register_blueprint(auth_bp, url_prefix='/auth')
-    app.register_blueprint(prompt_bp, url_prefix='/prompts')
+# Enregistrement des routes
+init_routes(app)
 
-    return app
+@app.teardown_appcontext
+def teardown_db(error):
+    close_db()
+
+
+
+from flask_mail import Mail
+from config import Config
+
+app = Flask(__name__)
+app.config.from_object(Config)
+
+mail = Mail(app)
+
+from app import routes, models
+
+
+# app/__init__.py
+
+
+
+
+
+
